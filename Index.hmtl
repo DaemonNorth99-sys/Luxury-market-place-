@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Market Pulse | Inteligencia de Mercado en Relojería</title>
+    <!-- Estilos limpios y directos -->
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b0b0b; color: #f4f4f4; margin: 0; padding: 20px; }
+        header { text-align: center; padding: 40px 0; border-bottom: 1px solid #222; }
+        h1 { font-size: 1.8rem; letter-spacing: -0.5px; margin-bottom: 5px; }
+        p.subtitle { color: #888; font-size: 0.95rem; }
+        .container { max-width: 800px; margin: 40px auto; }
+        h2 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; color: #d4af37; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .card { background: #141414; border: 1px solid #222; border-radius: 8px; padding: 20px; position: relative; }
+        .badge { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #d4af37; background: rgba(212, 175, 55, 0.1); padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
+        .card h3 { margin: 5px 0; font-size: 1.1rem; }
+        .ref { color: #666; font-size: 0.85rem; margin-bottom: 12px; }
+        .price { font-size: 1.3rem; font-weight: bold; color: #fff; }
+        .details { font-size: 0.85rem; color: #aaa; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>LUXURY MARKET PULSE</h1>
+        <p class="subtitle">Inteligencia de datos y liquidez en alta relojería</p>
+    </header>
+
+    <div class="container">
+        <h2>Laboratorio de Referencias (En Vivo)</h2>
+        <div id="laboratorio-grid" class="grid">
+            <p style="color: #666;">Cargando datos desde Supabase...</p>
+        </div>
+    </div>
+
+    <!-- Librería oficial de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ⚠️ PEGA AQUÍ TUS CREDENCIALES DE SUPABASE QUE COPIASTE ANTES
+        const SUPABASE_URL = 'TU_PROJECT_URL_AQUI';
+        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI';
+        
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function cargarLaboratorio() {
+            const { data: relojes, error } = await _supabase
+                .from('relojes_laboratorio')
+                .select('*')
+                .order('id', { ascending: true });
+
+            const contenedor = document.getElementById('laboratorio-grid');
+            
+            if (error) {
+                contenedor.innerHTML = '<p style="color: #ff4444;">Error al conectar con la base de datos.</p>';
+                console.error('Error:', error);
+                return;
+            }
+
+            contenedor.innerHTML = '';
+
+            relojes.forEach(reloj => {
+                const tarjeta = `
+                    <div class="card">
+                        <span class="badge">${reloj.estado_liquidez}</span>
+                        <h3>${reloj.marca} ${reloj.modelo}</h3>
+                        <div class="ref">Ref. ${reloj.referencia}</div>
+                        <div class="price">${Number(reloj.precio_medio).toLocaleString('es-ES')} €</div>
+                        <div class="details">Días en mercado: ${reloj.dias_mercado_min} – ${reloj.dias_mercado_max} días</div>
+                    </div>
+                `;
+                contenedor.innerHTML += tarjeta;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarLaboratorio);
+    </script>
+</body>
+</html>
