@@ -3,79 +3,498 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luxury Market Pulse | Inteligencia de Mercado en Relojería</title>
-    <!-- Estilos limpios y directos -->
+    <title>Luxury Market Pulse | Análisis del Mercado Secundario de Relojes</title>
+    <meta name="description" content="Inteligencia de mercado para el secundario de alta relojería. Rolex, Audemars Piguet y más. Datos reales, sin ruido.">
+    <!-- Librería de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b0b0b; color: #f4f4f4; margin: 0; padding: 20px; }
-        header { text-align: center; padding: 40px 0; border-bottom: 1px solid #222; }
-        h1 { font-size: 1.8rem; letter-spacing: -0.5px; margin-bottom: 5px; }
-        p.subtitle { color: #888; font-size: 0.95rem; }
-        .container { max-width: 800px; margin: 40px auto; }
-        h2 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; color: #d4af37; margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .card { background: #141414; border: 1px solid #222; border-radius: 8px; padding: 20px; position: relative; }
-        .badge { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #d4af37; background: rgba(212, 175, 55, 0.1); padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
-        .card h3 { margin: 5px 0; font-size: 1.1rem; }
-        .ref { color: #666; font-size: 0.85rem; margin-bottom: 12px; }
-        .price { font-size: 1.3rem; font-weight: bold; color: #fff; }
-        .details { font-size: 0.85rem; color: #aaa; margin-top: 5px; }
+        :root {
+            --bg: #0a0a0b;
+            --bg-card: #121214;
+            --bg-elevated: #1a1a1d;
+            --text: #f5f5f5;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6;
+            --accent-green: #10b981;
+            --border: #27272a;
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 11, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        nav {
+            display: flex;
+            gap: 32px;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            font-weight: 550;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: background 0.2s, transform 0.15s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-elevated);
+            border-color: #3f3f46;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0 80px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            font-weight: 650;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 24px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto 40px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Section common */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-header {
+            margin-bottom: 48px;
+        }
+
+        .section-header h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 540px;
+        }
+
+        /* Laboratorio */
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: #3f3f46;
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card .ref {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .card .price {
+            font-size: 1.5rem;
+            font-weight: 650;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .card .meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 550;
+            padding: 4px 10px;
+            border-radius: 99px;
+            margin-bottom: 16px;
+        }
+
+        .badge-high {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .badge-medium {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+        }
+
+        .badge-low {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        /* Tablón */
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .news-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+        }
+
+        .news-item h3 {
+            font-size: 1.05rem;
+            font-weight: 550;
+            margin-bottom: 6px;
+        }
+
+        .news-item p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .news-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* CTA Section */
+        .cta {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 64px 40px;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .cta h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .cta p {
+            color: var(--text-muted);
+            max-width: 480px;
+            margin: 0 auto 32px;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 48px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer .logo {
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+            .hero {
+                padding: 60px 0 50px;
+            }
+            .news-item {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .cta {
+                padding: 48px 24px;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>LUXURY MARKET PULSE</h1>
-        <p class="subtitle">Inteligencia de datos y liquidez en alta relojería</p>
-    </header>
-
-    <div class="container">
-        <h2>Laboratorio de Referencias (En Vivo)</h2>
-        <div id="laboratorio-grid" class="grid">
-            <p style="color: #666;">Cargando datos desde Supabase...</p>
-        </div>
+<header>
+    <div class="container header-inner">
+        <div class="logo">Luxury Market <span>Pulse</span></div>
+        <nav>
+            <a href="#laboratorio">Laboratorio</a>
+            <a href="#tablon">Actualidad</a>
+            <a href="#informes">Informes</a>
+            <a href="#cta">Acceder</a>
+        </nav>
     </div>
+</header>
 
-    <!-- Librería oficial de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<main>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>Inteligencia de mercado para el secundario de alta relojería</h1>
+            <p>Seguimiento real de precios, liquidez y desequilibrios en Rolex y Audemars Piguet. Sin ruido. Solo señal.</p>
+            <div class="hero-buttons">
+                <a href="#cta" class="btn">Lista de espera</a>
+                <a href="#laboratorio" class="btn btn-outline">Ver Laboratorio</a>
+            </div>
+        </div>
+    </section>
 
-    <script>
-        // ⚠️ PEGA AQUÍ TUS CREDENCIALES DE SUPABASE QUE COPIASTE ANTES
-        const SUPABASE_URL = 'https://sokjtqnrajzqkopoqpze.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_mUFpmAp3SEDwWxK-EZlA9A_xisWGyZS';
-        
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- Laboratorio (EN VIVO CON SUPABASE) -->
+    <section id="laboratorio">
+        <div class="container">
+            <div class="section-header">
+                <h2>Laboratorio de Referencias (En Vivo)</h2>
+                <p>Estado actual del mercado secundario sincronizado con Supabase</p>
+            </div>
 
-        async function cargarLaboratorio() {
-            const { data: relojes, error } = await _supabase
-                .from('relojes_laboratorio')
-                .select('*')
-                .order('id', { ascending: true });
+            <div id="laboratorio-grid" class="lab-grid">
+                <p style="color: var(--text-muted);">Cargando datos desde Supabase...</p>
+            </div>
+        </div>
+    </section>
 
-            const contenedor = document.getElementById('laboratorio-grid');
-            
-            if (error) {
-                contenedor.innerHTML = '<p style="color: #ff4444;">Error al conectar con la base de datos.</p>';
-                console.error('Error:', error);
-                return;
-            }
+    <!-- Tablón -->
+    <section id="tablon" style="background: #0d0d0f;">
+        <div class="container">
+            <div class="section-header">
+                <h2>Tablón de actualidad</h2>
+                <p>Actualizaciones relevantes del mercado. Versión pública.</p>
+            </div>
 
-            contenedor.innerHTML = '';
-
-            relojes.forEach(reloj => {
-                const tarjeta = `
-                    <div class="card">
-                        <span class="badge">${reloj.estado_liquidez}</span>
-                        <h3>${reloj.marca} ${reloj.modelo}</h3>
-                        <div class="ref">Ref. ${reloj.referencia}</div>
-                        <div class="price">${Number(reloj.precio_medio).toLocaleString('es-ES')} €</div>
-                        <div class="details">Días en mercado: ${reloj.dias_mercado_min} – ${reloj.dias_mercado_max} días</div>
+            <div class="news-list">
+                <div class="news-item">
+                    <div>
+                        <h3>Inicio del seguimiento formal de las 5 referencias clave</h3>
+                        <p>Comenzamos la recolección sistemática de precios y liquidez en Rolex Daytona, Submariner, GMT Pepsi y las dos Royal Oak principales.</p>
                     </div>
-                `;
-                contenedor.innerHTML += tarjeta;
-            });
+                    <div class="news-date">12 Oct 2026</div>
+                </div>
+
+                <div class="news-item">
+                    <div>
+                        <h3>Submariner 126610LN se mantiene como líder de liquidez</h3>
+                        <p>Con una permanencia media de 12–22 días, sigue siendo la referencia de acero con mayor rotación del mercado secundario actual.</p>
+                    </div>
+                    <div class="news-date">12 Oct 2026</div>
+                </div>
+
+                <div class="news-item">
+                    <div>
+                        <h3>Prima del dial Panda en Daytona se sitúa entre +12% y +18%</h3>
+                        <p>La versión de esfera blanca continúa cotizando de forma consistente por encima de la negra en estado excelente.</p>
+                    </div>
+                    <div class="news-date">12 Oct 2026</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Informes teaser -->
+    <section id="informes">
+        <div class="container">
+            <div class="section-header">
+                <h2>Informes de Diagnóstico</h2>
+                <p>Análisis completo de tensión, desequilibrios y factores de mercado. Solo para suscriptores.</p>
+            </div>
+
+            <div class="card" style="max-width: 640px;">
+                <h3 style="margin-bottom: 12px;">Primer informe completo</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Previsto para finales de octubre 2026. Incluirá diagnóstico de tensión por referencia, 
+                    evolución de liquidez y lectura de los factores externos más relevantes.
+                </p>
+                <a href="#cta" class="btn">Quiero acceso prioritario</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta">
+        <div class="container">
+            <div class="cta">
+                <h2>Acceso anticipado</h2>
+                <p>
+                    Estamos abriendo una lista de espera limitada para el primer ciclo de informes.
+                    Sin spam. Solo el diagnóstico cuando esté listo.
+                </p>
+                <a href="mailto:hola@luxurymarketpulse.com?subject=Lista%20de%20espera%20Luxury%20Market%20Pulse" class="btn">
+                    Unirme a la lista de espera
+                </a>
+                <p style="margin-top: 24px; font-size: 0.9rem; color: var(--text-muted);">
+                    O escríbenos directamente por X: @LuxuryMarketPulse
+                </p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="logo">Luxury Market <span>Pulse</span></div>
+        <p>Análisis del mercado secundario de relojes de alta gama.</p>
+        <p style="margin-top: 8px;">© 2026 · Todos los derechos reservados</p>
+    </div>
+</footer>
+
+<!-- Script para conectar con Supabase y renderizar las tarjetas -->
+<script>
+    const SUPABASE_URL = 'https://sokjtqnrqjzqkopoqpze.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_mUFpmAp3SEDwWxK-EZlA9A_xisWGyZS';
+
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function cargarLaboratorio() {
+        const contenedor = document.getElementById('laboratorio-grid');
+        
+        const { data: relojes, error } = await _supabase
+            .from('relojes_laboratorio')
+            .select('*');
+
+        if (error) {
+            contenedor.innerHTML = `<p style="color: #ff4444;">Error al conectar con la base de datos: ${error.message}</p>`;
+            return;
         }
 
-        document.addEventListener('DOMContentLoaded', cargarLaboratorio);
-    </script>
+        if (!relojes || relojes.length === 0) {
+            contenedor.innerHTML = `<p style="color: var(--text-muted);">No hay referencias registradas en el laboratorio todavía.</p>`;
+            return;
+        }
+
+        contenedor.innerHTML = relojes.map(reloj => `
+            <div class="card">
+                <span class="badge badge-medium">${reloj.liquidez || 'Alta demanda'}</span>
+                <h3>${reloj.marca} ${reloj.modelo}</h3>
+                <div class="ref">${reloj.referencia}</div>
+                <div class="price">${reloj.precio}</div>
+                <div class="meta">${reloj.meta || 'Precio medio de mercado'}</div>
+            </div>
+        `).join('');
+    }
+
+    cargarLaboratorio();
+</script>
+
 </body>
 </html>
+
