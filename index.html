@@ -494,7 +494,12 @@
 
     cargarLaboratorio();
 </script>
-
-</body>
-</html>
-
+contenedor.innerHTML = relojes.map(reloj => `
+            <div class="card">
+                <span class="badge badge-medium">${reloj.liquidez || 'Alta demanda'}</span>
+                <h3>${reloj.marca} ${reloj.modelo}</h3>
+                <div class="ref">${reloj.referencia}</div>
+                <div class="price">${reloj.precio_medio || reloj.precio || 'Consultar'}</div>
+                <div class="meta">${reloj.meta || 'Mercado Global'}</div>
+            </div>
+        `).join('');
