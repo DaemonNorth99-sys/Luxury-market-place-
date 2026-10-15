@@ -3,511 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luxury Market Pulse | Análisis del Mercado Secundario de Relojes</title>
-    <meta name="description" content="Inteligencia de mercado para el secundario de alta relojería. Rolex, Audemars Piguet y más. Datos reales, sin ruido.">
-    <!-- Librería de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Luxury Market Pulse | Terminal de Inteligencia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0b;
-            --bg-card: #121214;
-            --bg-elevated: #1a1a1d;
-            --text: #f5f5f5;
-            --text-muted: #a1a1aa;
-            --accent: #3b82f6;
-            --accent-green: #10b981;
-            --border: #27272a;
-            --radius: 12px;
+            --bg-main: #0a0a0c;
+            --card-bg: #121318;
+            --card-border: #1f222c;
+            --accent-blue: #3b82f6;
+            --text-primary: #f3f4f6;
+            --text-muted: #9ca3af;
+            --badge-green: #10b981;
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .container {
-            max-width: 1100px;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            padding: 20px 16px 60px 16px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 0 24px;
         }
 
-        /* Header */
         header {
-            padding: 24px 0;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            background: rgba(10, 10, 11, 0.85);
-            backdrop-filter: blur(12px);
-            z-index: 100;
-        }
-
-        .header-inner {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--card-border);
         }
 
         .logo {
-            font-size: 1.25rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            color: var(--text);
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .logo span {
-            color: var(--accent);
+            color: var(--accent-blue);
         }
 
-        nav {
-            display: flex;
-            gap: 32px;
-        }
-
-        nav a {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        nav a:hover {
-            color: var(--text);
-            text-decoration: none;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: var(--accent);
-            color: white;
-            font-weight: 550;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: background 0.2s, transform 0.15s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background: #2563eb;
-            text-decoration: none;
-            transform: translateY(-1px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        .btn-outline:hover {
-            background: var(--bg-elevated);
-            border-color: #3f3f46;
-        }
-
-        /* Hero */
-        .hero {
-            padding: 100px 0 80px;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.2rem, 5vw, 3.4rem);
-            font-weight: 650;
-            letter-spacing: -0.03em;
-            line-height: 1.15;
-            margin-bottom: 24px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            max-width: 560px;
-            margin: 0 auto 40px;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* Section common */
-        section {
-            padding: 80px 0;
-        }
-
-        .section-header {
-            margin-bottom: 48px;
-        }
-
-        .section-header h2 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            margin-bottom: 12px;
-        }
-
-        .section-header p {
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            max-width: 540px;
-        }
-
-        /* Laboratorio */
-        .lab-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 28px;
-            transition: border-color 0.2s;
-        }
-
-        .card:hover {
-            border-color: #3f3f46;
-        }
-
-        .card h3 {
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .card .ref {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        .card .price {
+        .section-title {
             font-size: 1.5rem;
-            font-weight: 650;
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
-        }
-
-        .card .meta {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .badge {
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 550;
-            padding: 4px 10px;
-            border-radius: 99px;
-            margin-bottom: 16px;
-        }
-
-        .badge-high {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--accent-green);
-        }
-
-        .badge-medium {
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--accent);
-        }
-
-        .badge-low {
-            background: rgba(245, 158, 11, 0.15);
-            color: #f59e0b;
-        }
-
-        /* Tablón */
-        .news-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .news-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 24px;
-        }
-
-        .news-item h3 {
-            font-size: 1.05rem;
-            font-weight: 550;
+            font-weight: 700;
             margin-bottom: 6px;
         }
 
-        .news-item p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .news-date {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-
-        /* CTA Section */
-        .cta {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 64px 40px;
-            text-align: center;
-            margin: 40px 0;
-        }
-
-        .cta h2 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .cta p {
-            color: var(--text-muted);
-            max-width: 480px;
-            margin: 0 auto 32px;
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 48px 0;
-            text-align: center;
+        .section-subtitle {
             color: var(--text-muted);
             font-size: 0.9rem;
+            margin-bottom: 20px;
         }
 
-        footer .logo {
-            margin-bottom: 12px;
-            display: inline-block;
+        /* Buscador Global */
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            nav {
-                display: none;
-            }
-            .hero {
-                padding: 60px 0 50px;
-            }
-            .news-item {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .cta {
-                padding: 48px 24px;
-            }
+        .search-box:focus {
+            border-color: var(--accent-blue);
+        }
+
+        /* Grid de Tarjetas */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 18px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .badge {
+            align-self: flex-start;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+
+        .ref {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 6px;
+        }
+
+        .meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--card-border);
+            padding-top: 8px;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="container header-inner">
+    <header>
         <div class="logo">Luxury Market <span>Pulse</span></div>
-        <nav>
-            <a href="#laboratorio">Laboratorio</a>
-            <a href="#tablon">Actualidad</a>
-            <a href="#informes">Informes</a>
-            <a href="#cta">Acceder</a>
-        </nav>
-    </div>
-</header>
+    </header>
 
-<main>
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container">
-            <h1>Inteligencia de mercado para el secundario de alta relojería</h1>
-            <p>Seguimiento real de precios, liquidez y desequilibrios en Rolex y Audemars Piguet. Sin ruido. Solo señal.</p>
-            <div class="hero-buttons">
-                <a href="#cta" class="btn">Lista de espera</a>
-                <a href="#laboratorio" class="btn btn-outline">Ver Laboratorio</a>
-            </div>
+    <main>
+        <h1 class="section-title">Laboratorio de Referencias (En Vivo)</h1>
+        <p class="section-subtitle">Estado actual del mercado secundario sincronizado con Supabase</p>
+
+        <!-- Barra de Búsqueda Global -->
+        <input type="text" id="busqueda-input" class="search-box" placeholder="Buscar por marca, modelo o referencia (ej. Rolex, 126610LN)..." onkeyup="filtrarRelojes()">
+
+        <div id="grid-laboratorio" class="grid">
+            <p style="color: var(--text-muted);">Cargando datos desde Supabase...</p>
         </div>
-    </section>
+    </main>
 
-    <!-- Laboratorio (EN VIVO CON SUPABASE) -->
-    <section id="laboratorio">
-        <div class="container">
-            <div class="section-header">
-                <h2>Laboratorio de Referencias (En Vivo)</h2>
-                <p>Estado actual del mercado secundario sincronizado con Supabase</p>
-            </div>
+    <!-- Supabase SDK & JavaScript de Control -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://sokjtqnrqjzqkopoqpze.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_mUFpmAp3SEDwWxK-EZlA9A_xisWGyZS';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            <div id="laboratorio-grid" class="lab-grid">
-                <p style="color: var(--text-muted);">Cargando datos desde Supabase...</p>
-            </div>
-        </div>
-    </section>
+        let listaRelojesGlobal = [];
 
-    <!-- Tablón -->
-    <section id="tablon" style="background: #0d0d0f;">
-        <div class="container">
-            <div class="section-header">
-                <h2>Tablón de actualidad</h2>
-                <p>Actualizaciones relevantes del mercado. Versión pública.</p>
-            </div>
+        async function cargarLaboratorio() {
+            const contenedor = document.getElementById('grid-laboratorio');
+            if (!contenedor) return;
 
-            <div class="news-list">
-                <div class="news-item">
-                    <div>
-                        <h3>Inicio del seguimiento formal de las 5 referencias clave</h3>
-                        <p>Comenzamos la recolección sistemática de precios y liquidez en Rolex Daytona, Submariner, GMT Pepsi y las dos Royal Oak principales.</p>
-                    </div>
-                    <div class="news-date">12 Oct 2026</div>
-                </div>
+            try {
+                const { data, error } = await supabaseClient
+                    .from('relojes_laboratorio')
+                    .select('*');
 
-                <div class="news-item">
-                    <div>
-                        <h3>Submariner 126610LN se mantiene como líder de liquidez</h3>
-                        <p>Con una permanencia media de 12–22 días, sigue siendo la referencia de acero con mayor rotación del mercado secundario actual.</p>
-                    </div>
-                    <div class="news-date">12 Oct 2026</div>
-                </div>
+                if (error) throw error;
 
-                <div class="news-item">
-                    <div>
-                        <h3>Prima del dial Panda en Daytona se sitúa entre +12% y +18%</h3>
-                        <p>La versión de esfera blanca continúa cotizando de forma consistente por encima de la negra en estado excelente.</p>
-                    </div>
-                    <div class="news-date">12 Oct 2026</div>
-                </div>
-            </div>
-        </div>
-    </section>
+                if (!data || data.length === 0) {
+                    contenedor.innerHTML = '<p style="color: var(--text-muted);">No hay referencias registradas.</p>';
+                    return;
+                }
 
-    <!-- Informes teaser -->
-    <section id="informes">
-        <div class="container">
-            <div class="section-header">
-                <h2>Informes de Diagnóstico</h2>
-                <p>Análisis completo de tensión, desequilibrios y factores de mercado. Solo para suscriptores.</p>
-            </div>
+                listaRelojesGlobal = data;
+                renderizarRelojes(listaRelojesGlobal);
 
-            <div class="card" style="max-width: 640px;">
-                <h3 style="margin-bottom: 12px;">Primer informe completo</h3>
-                <p style="color: var(--text-muted); margin-bottom: 20px;">
-                    Previsto para finales de octubre 2026. Incluirá diagnóstico de tensión por referencia, 
-                    evolución de liquidez y lectura de los factores externos más relevantes.
-                </p>
-                <a href="#cta" class="btn">Quiero acceso prioritario</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA -->
-    <section id="cta">
-        <div class="container">
-            <div class="cta">
-                <h2>Acceso anticipado</h2>
-                <p>
-                    Estamos abriendo una lista de espera limitada para el primer ciclo de informes.
-                    Sin spam. Solo el diagnóstico cuando esté listo.
-                </p>
-                <a href="mailto:hola@luxurymarketpulse.com?subject=Lista%20de%20espera%20Luxury%20Market%20Pulse" class="btn">
-                    Unirme a la lista de espera
-                </a>
-                <p style="margin-top: 24px; font-size: 0.9rem; color: var(--text-muted);">
-                    O escríbenos directamente por X: @LuxuryMarketPulse
-                </p>
-            </div>
-        </div>
-    </section>
-</main>
-
-<footer>
-    <div class="container">
-        <div class="logo">Luxury Market <span>Pulse</span></div>
-        <p>Análisis del mercado secundario de relojes de alta gama.</p>
-        <p style="margin-top: 8px;">© 2026 · Todos los derechos reservados</p>
-    </div>
-</footer>
-
-<!-- Script para conectar con Supabase y renderizar las tarjetas -->
-<script>
-    const SUPABASE_URL = 'https://sokjtqnrqjzqkopoqpze.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_mUFpmAp3SEDwWxK-EZlA9A_xisWGyZS';
-
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function cargarLaboratorio() {
-        const contenedor = document.getElementById('laboratorio-grid');
-        
-        const { data: relojes, error } = await _supabase
-            .from('relojes_laboratorio')
-            .select('*');
-
-        if (error) {
-            contenedor.innerHTML = `<p style="color: #ff4444;">Error al conectar con la base de datos: ${error.message}</p>`;
-            return;
+            } catch (error) {
+                console.error('Error Supabase:', error);
+                contenedor.innerHTML = '<p style="color: #ff4444;">Error al conectar con la base de datos</p>';
+            }
         }
 
-        if (!relojes || relojes.length === 0) {
-            contenedor.innerHTML = `<p style="color: var(--text-muted);">No hay referencias registradas en el laboratorio todavía.</p>`;
-            return;
+        function renderizarRelojes(relojes) {
+            const contenedor = document.getElementById('grid-laboratorio');
+            if (!relojes || relojes.length === 0) {
+                contenedor.innerHTML = '<p style="color: var(--text-muted);">No se encontraron coincidencias.</p>';
+                return;
+            }
+
+            contenedor.innerHTML = relojes.map(reloj => `
+                <div class="card">
+                    <span class="badge">${reloj.liquidez || 'Alta demanda'}</span>
+                    <h3>${reloj.marca || 'Reloj'} ${reloj.modelo || ''}</h3>
+                    <div class="ref">${reloj.referencia || ''}</div>
+                    <div class="price">${reloj.precio_medio || reloj.precio || 'Consultar'}</div>
+                    <div class="meta">${reloj.meta || 'Mercado Global'}</div>
+                </div>
+            `).join('');
         }
 
-        contenedor.innerHTML = relojes.map(reloj => `
-            <div class="card">
-                <span class="badge badge-medium">${reloj.liquidez || 'Alta demanda'}</span>
-                <h3>${reloj.marca} ${reloj.modelo}</h3>
-                <div class="ref">${reloj.referencia}</div>
-                <div class="price">${reloj.precio_medio || reloj.precio || 'Consultar'}</div>
-                <div class="meta">${reloj.meta || 'Precio medio de mercado'}</div>
-            </div>
-        `).join('');
-    }
+        function filtrarRelojes() {
+            const busqueda = document.getElementById('busqueda-input').value.toLowerCase().trim();
+            if (!busqueda) {
+                renderizarRelojes(listaRelojesGlobal);
+                return;
+            }
 
-    cargarLaboratorio();
-contenedor.innerHTML = relojes.map(reloj => `
-            <div class="card">
-                <span class="badge badge-medium">${reloj.liquidez || 'Alta demanda'}</span>
-                <h3>${reloj.marca} ${reloj.modelo}</h3>
-                <div class="ref">${reloj.referencia}</div>
-                <div class="price">${reloj.precio_medio || reloj.precio || 'Consultar'}</div>
-                <div class="meta">${reloj.meta || 'Mercado Global'}</div>
-            </div>
-        `).join('');
+            const filtrados = listaRelojesGlobal.filter(reloj => {
+                const marca = (reloj.marca || '').toLowerCase();
+                const modelo = (reloj.modelo || '').toLowerCase();
+                const ref = (reloj.referencia || '').toLowerCase();
+                const meta = (reloj.meta || '').toLowerCase();
+                return marca.includes(busqueda) || modelo.includes(busqueda) || ref.includes(busqueda) || meta.includes(busqueda);
+            });
 
-    } catch (error) {
-        console.error('Error:', error);
-        contenedor.innerHTML = `<p style="color: #ff4444;">Error al conectar con la base de datos</p>`;
-    }
-}
+            renderizarRelojes(filtrados);
+        }
 
-cargarLaboratorio();
-</script>
+        document.addEventListener('DOMContentLoaded', cargarLaboratorio);
+        cargarLaboratorio();
+    </script>
+</body>
+</html>
