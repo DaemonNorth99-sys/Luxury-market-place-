@@ -202,8 +202,8 @@
                 <div class="card">
                     <span class="badge">${reloj.liquidez || 'Alta demanda'}</span>
                     <h3>${reloj.marca || 'Reloj'} ${reloj.modelo || ''}</h3>
-                    <div class="ref">${reloj.referencia || ''}</div>
-                    <div class="price">${reloj.precio_medio || reloj.precio || 'Consultar'}</div>
+                <div class="price">${reloj.precio ? Number(reloj.precio).toLocaleString('es-ES') + ' €' : (reloj.precio_medio ? Number(reloj.precio_medio).toLocaleString('es-ES') + ' €' : 'Consultar')}</div>
+<div class="meta">${reloj.origen || reloj.dias_mercado || reloj.meta || 'Mercado Global'}</div>
                     <div class="meta">${reloj.meta || 'Mercado Global'}</div>
                 </div>
             `).join('');
