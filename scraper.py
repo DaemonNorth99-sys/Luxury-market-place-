@@ -1,105 +1,79 @@
-import time
-import random
 import os
-from supabase import create_client, Client
+import requests
 
-SUPABASE_URL = "https://sokjtqnrqjzqkopoqpze.supabase.co"
-SUPABASE_KEY = "sb_publishable_mUFpmAp3SEDwWxK-EZlA9A_xisWGyZS"
+SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://sokjtqnrqjzqkopoqpze.supabase.co')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'sb_publishable_mUFpmAp3SEDwWxK-EZlA9A_xisWGyZS')
 
-TASAS_CAMBIO = {
-    "EUR": 1.0,
-    "USD": 0.92,
-    "JPY": 0.0061
+HEADERS = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": f"Bearer {SUPABASE_KEY}",
+    "Content-Type": "application/json",
+    "Prefer": "resolution=merge-duplicates"
 }
 
-def convertir_a_euros(monto, moneda):
-    tasa = TASAS_CAMBIO.get(moneda.upper(), 1.0)
-    return int(monto * tasa)
+# Referencias con desglose de arbitraje internacional (Japón, EE.UU. vs Europa)
+relojes_data = [
+    {
+        "referencia": "126610LN",
+        "marca": "Rolex",
+        "modelo": "Submariner Date",
+        "precio_medio": "13.200 €",
+        "liquidez": "Alta demanda",
+        "origen": "Europa (Mercado Base)",
+        "meta": "Europa"
+    },
+    {
+        "referencia": "126610LN-JP",
+        "marca": "Rolex",
+        "modelo": "Submariner Date (Tokio)",
+        "precio_medio": "11.500 €",
+        "liquidez": "Oportunidad Arbitraje (-13%)",
+        "origen": "Japón: 11.500 € (Ahorro 1.700 €)",
+        "meta": "Japón"
+    },
+    {
+        "referencia": "126500LN",
+        "marca": "Rolex",
+        "modelo": "Daytona Ceramic",
+        "precio_medio": "32.500 €",
+        "liquidez": "Alta demanda",
+        "origen": "Europa (Mercado Base)",
+        "meta": "Europa"
+    },
+    {
+        "referencia": "126500LN-US",
+        "marca": "Rolex",
+        "modelo": "Daytona Ceramic (EE.UU.)",
+        "precio_medio": "30.900 €",
+        "liquidez": "Arbitraje Moderado (-5%)",
+        "origen": "EE.UU.: 30.900 € ($33,500)",
+        "meta": "Norteamérica"
+    },
+    {
+        "referencia": "126710BLRO",
+        "marca": "Rolex",
+        "modelo": "GMT-Master II (Pepsi)",
+        "precio_medio": "19.800 €",
+        "liquidez": "Alta demanda",
+        "origen": "Europa (Mercado Base)",
+        "meta": "Europa"
+    },
+    {
+        "referencia": "126710BLRO-JP",
+        "marca": "Rolex",
+        "modelo": "GMT-Master II Pepsi (Tokio)",
+        "precio_medio": "17.400 €",
+        "liquidez": "Oportunidad Arbitraje (-12%)",
+        "origen": "Japón: 17.400 € (Ahorro 2.400 €)",
+        "meta": "Japón"
+    }
+]
 
-def analizar_estado_y_autenticidad(descripcion):
-    desc = descripcion.lower()
-    multiplicador = 1.0
-    tags = []
-    
-    if "no box" in desc or "sin caja" in desc:
-        multiplicador -= 0.08
-        tags.append("Sin caja (-8%)")
-    if "no papers" in desc or "sin papeles" in desc:
-        multiplicador -= 0.12
-        tags.append("Sin papeles (-12%)")
-    if "scratches" in desc or "rayas" in desc:
-        multiplicador -= 0.05
-        tags.append("Con marcas (-5%)")
-    elif "unworn" in desc or "nuevo" in desc:
-        multiplicador += 0.05
-        tags.append("Estreno (+5%)")
-        
-    resumen = " · ".join(tags) if tags else "Full Set / Excelente"
-    return multiplicador, resumen
-
-def ejecutar_rastreo_global():
-    print("🌍 [Luxury Market Pulse] Iniciando rastreo global multi-mercado...")
-    time.sleep(random.uniform(2.0, 4.5))
-
-    try:
-        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-        
-        anuncios_globales = [
-            {
-                "referencia": "126610LN",
-                "marca": "Rolex",
-                "modelo": "Submariner Date",
-                "region": "Europa (ES)",
-                "precio_local": 13900,
-                "moneda": "EUR",
-                "descripcion": "Submariner Date full set 2024, excellent condition."
-            },
-            {
-                "referencia": "126610LN",
-                "marca": "Rolex",
-                "modelo": "Submariner Date",
-                "region": "Japón (JP - Oportunidad)",
-                "precio_local": 1980000,
-                "moneda": "JPY",
-                "descripcion": "Rolex Submariner 126610LN unused with box and papers."
-            },
-            {
-                "referencia": "126500LN",
-                "marca": "Rolex",
-                "modelo": "Daytona Panda",
-                "region": "EE.UU. (US)",
-                "precio_local": 36000,
-                "moneda": "USD",
-                "descripcion": "Daytona Panda dial, minor scratches on clasp, no box."
-            }
-        ]
-
-        print("🔄 Normalizando divisas y calculando arbitraje geográfico...")
-
-        for anuncio in anuncios_globales:
-            precio_euros_base = convertir_a_euros(anuncio["precio_local"], anuncio["moneda"])
-            mult, estado_meta = analizar_estado_y_autenticidad(anuncio["descripcion"])
-            precio_final = int(precio_euros_base * mult)
-            
-            precio_str = f"{precio_final:,.0f} €".replace(",", ".")
-            meta_str = f"Mercado: {anuncio['region']} · {estado_meta}"
-
-            reloj_data = {
-                "referencia": anuncio["referencia"],
-                "marca": anuncio["marca"],
-                "modelo": anuncio["modelo"],
-                "precio_medio": precio_str,
-                "liquidez": "Arbitraje Global",
-                "meta": meta_str
-            }
-
-            supabase.table('relojes_laboratorio').upsert(reloj_data, on_conflict='referencia').execute()
-            print(f"✅ Procesado [{anuncio['region']}]: {anuncio['modelo']} -> {precio_str}")
-
-        print("\n✨ Rastreo global finalizado con éxito.")
-
-    except Exception as e:
-        print(f"❌ Error crítico en el rastreo global: {e}")
+def actualizar_supabase():
+    url = f"{SUPABASE_URL}/rest/v1/relojes_laboratorio"
+    for reloj in relojes_data:
+        response = requests.post(url, headers=HEADERS, json=reloj)
+        print(f"Sincronizando {reloj['referencia']}: {response.status_code}")
 
 if __name__ == "__main__":
-    ejecutar_rastreo_global()
+    actualizar_supabase()
