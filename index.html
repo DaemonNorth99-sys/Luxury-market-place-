@@ -493,7 +493,6 @@
     }
 
     cargarLaboratorio();
-</script>
 contenedor.innerHTML = relojes.map(reloj => `
             <div class="card">
                 <span class="badge badge-medium">${reloj.liquidez || 'Alta demanda'}</span>
@@ -503,3 +502,12 @@ contenedor.innerHTML = relojes.map(reloj => `
                 <div class="meta">${reloj.meta || 'Mercado Global'}</div>
             </div>
         `).join('');
+
+    } catch (error) {
+        console.error('Error:', error);
+        contenedor.innerHTML = `<p style="color: #ff4444;">Error al conectar con la base de datos</p>`;
+    }
+}
+
+cargarLaboratorio();
+</script>
