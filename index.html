@@ -191,6 +191,7 @@
             }
         }
 
+        
         function renderizarRelojes(relojes) {
             const contenedor = document.getElementById('grid-laboratorio');
             if (!relojes || relojes.length === 0) {
@@ -201,30 +202,12 @@
             contenedor.innerHTML = relojes.map(reloj => `
                 <div class="card">
                     <span class="badge">${reloj.liquidez || 'Alta demanda'}</span>
-                    <h3>${reloj.marca || 'Reloj'} ${reloj.modelo || ''}</h3>
-                <div class="price">${reloj.precio ? Number(reloj.precio).toLocaleString('es-ES') + ' €' : (reloj.precio_medio ? Number(reloj.precio_medio).toLocaleString('es-ES') + ' €' : 'Consultar')}</div>
-<div class="meta">${reloj.origen || reloj.dias_mercado || reloj.meta || 'Mercado Global'}</div>
-                    <div class="meta">${reloj.meta || 'Mercado Global'}</div>
+                    <h3>${reloj.marca || ''} ${reloj.modelo || ''}</h3>
+                    <div class="ref">${reloj.referencia || ''}</div>
+                    <div class="price">${reloj.precio_medio || reloj.precio || 'Consultar'}</div>
+                    <div class="meta">${reloj.origen || reloj.meta || 'Mercado Global'}</div>
                 </div>
             `).join('');
-        }
-
-        function filtrarRelojes() {
-            const busqueda = document.getElementById('busqueda-input').value.toLowerCase().trim();
-            if (!busqueda) {
-                renderizarRelojes(listaRelojesGlobal);
-                return;
-            }
-
-            const filtrados = listaRelojesGlobal.filter(reloj => {
-                const marca = (reloj.marca || '').toLowerCase();
-                const modelo = (reloj.modelo || '').toLowerCase();
-                const ref = (reloj.referencia || '').toLowerCase();
-                const meta = (reloj.meta || '').toLowerCase();
-                return marca.includes(busqueda) || modelo.includes(busqueda) || ref.includes(busqueda) || meta.includes(busqueda);
-            });
-
-            renderizarRelojes(filtrados);
         }
 
         document.addEventListener('DOMContentLoaded', cargarLaboratorio);
