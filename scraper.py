@@ -11,15 +11,15 @@ HEADERS = {
     "Prefer": "resolution=merge-duplicates"
 }
 
-# Referencias con desglose de arbitraje internacional (Japón, EE.UU. vs Europa)
+# Referencias con arbitraje geográfico y rotación dinámica
 relojes_data = [
     {
         "referencia": "126610LN",
         "marca": "Rolex",
         "modelo": "Submariner Date",
         "precio_medio": "13.200 €",
-        "liquidez": "Alta demanda",
-        "origen": "Europa (Mercado Base)",
+        "liquidez": "Alta Rotación",
+        "origen": "Europa (Base)",
         "meta": "Europa"
     },
     {
@@ -28,7 +28,7 @@ relojes_data = [
         "modelo": "Submariner Date (Tokio)",
         "precio_medio": "11.500 €",
         "liquidez": "Oportunidad Arbitraje (-13%)",
-        "origen": "Japón: 11.500 € (Ahorro 1.700 €)",
+        "origen": "Japón (Ahorro 1.700 €)",
         "meta": "Japón"
     },
     {
@@ -36,8 +36,8 @@ relojes_data = [
         "marca": "Rolex",
         "modelo": "Daytona Ceramic",
         "precio_medio": "32.500 €",
-        "liquidez": "Alta demanda",
-        "origen": "Europa (Mercado Base)",
+        "liquidez": "Prima Sobrecosto",
+        "origen": "Europa (Base)",
         "meta": "Europa"
     },
     {
@@ -46,7 +46,7 @@ relojes_data = [
         "modelo": "Daytona Ceramic (EE.UU.)",
         "precio_medio": "30.900 €",
         "liquidez": "Arbitraje Moderado (-5%)",
-        "origen": "EE.UU.: 30.900 € ($33,500)",
+        "origen": "EE.UU. ($33.500)",
         "meta": "Norteamérica"
     },
     {
@@ -54,8 +54,8 @@ relojes_data = [
         "marca": "Rolex",
         "modelo": "GMT-Master II (Pepsi)",
         "precio_medio": "19.800 €",
-        "liquidez": "Alta demanda",
-        "origen": "Europa (Mercado Base)",
+        "liquidez": "Alta Rotación",
+        "origen": "Europa (Base)",
         "meta": "Europa"
     },
     {
@@ -64,16 +64,21 @@ relojes_data = [
         "modelo": "GMT-Master II Pepsi (Tokio)",
         "precio_medio": "17.400 €",
         "liquidez": "Oportunidad Arbitraje (-12%)",
-        "origen": "Japón: 17.400 € (Ahorro 2.400 €)",
+        "origen": "Japón (Ahorro 2.400 €)",
         "meta": "Japón"
     }
 ]
 
-def actualizar_supabase():
+def reiniciar_y_sincronizar():
     url = f"{SUPABASE_URL}/rest/v1/relojes_laboratorio"
+    
+    # 1. Limpiar datos antiguos
+    requests.delete(f"{url}?referencia=neq.0", headers=HEADERS)
+    
+    # 2. Insertar datos nuevos limpios
     for reloj in relojes_data:
-        response = requests.post(url, headers=HEADERS, json=reloj)
-        print(f"Sincronizando {reloj['referencia']}: {response.status_code}")
+        res = requests.post(url, headers=HEADERS, json=reloj)
+        print(f"Insertado {reloj['referencia']}: {res.status_code}")
 
 if __name__ == "__main__":
-    actualizar_supabase()
+    reiniciar_y_sincronizar()
